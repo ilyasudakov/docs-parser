@@ -1,0 +1,35 @@
+# Ignore data directories
+data/raw/
+data/processed/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE specific
+.vscode/
+.idea/
+
+# FAISS index files
+*.index
+
+# Large files
+*.bin
+*.h5
+*.pkl
+
+# Logs
+*.log
+logs/ 

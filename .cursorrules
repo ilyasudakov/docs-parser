@@ -1,0 +1,159 @@
+# Cursor AI Rules Configuration
+
+# Code Generation Rules
+generate:
+  # Template rules for generating new files
+  templates:
+    python_class:
+      path: 'src/**/*.py'
+      pattern: |
+        from typing import List, Dict, Any
+
+        class {name}:
+            """
+            {description}
+            """
+            
+            def __init__(self):
+                pass
+
+    test_file:
+      path: 'tests/test_*.py'
+      pattern: |
+        import pytest
+        from {module_path} import {class_name}
+
+        @pytest.fixture
+        def {fixture_name}():
+            return {class_name}()
+
+        def test_{test_name}({fixture_name}):
+            pass
+
+  # Documentation patterns
+  docstrings:
+    format: 'google'
+    required_sections: ['Args', 'Returns', 'Raises']
+    pattern: |
+      """
+      {description}
+
+      Args:
+          {args}
+
+      Returns:
+          {returns}
+
+      Raises:
+          {raises}
+      """
+
+# Code Analysis Rules
+analyze:
+  # Patterns to identify in code reviews
+  patterns:
+    security:
+      - pattern: "os.system\\("
+        message: 'Avoid using os.system directly, use subprocess instead'
+      - pattern: "eval\\("
+        message: "Avoid using eval, it's potentially dangerous"
+
+    performance:
+      - pattern: "for.*in range\\(len\\("
+        message: 'Consider using enumerate() instead'
+      - pattern: "\\.\\w+\\(\\)\\.[A-Za-z_]+"
+        message: 'Chain of method calls might need caching'
+
+    style:
+      - pattern: "print\\("
+        message: 'Consider using logging instead of print'
+      - pattern: "except:\\s*$"
+        message: 'Avoid bare except clauses'
+
+# Completion Rules
+complete:
+  # Custom autocompletion patterns
+  snippets:
+    error_handling:
+      prefix: 'try_except'
+      body: |
+        try:
+            {cursor}
+        except {Exception} as e:
+            logging.error(f"{message}: {str(e)}")
+            raise
+
+    logging:
+      prefix: 'log_info'
+      body: 'logging.info(f"{message}")'
+
+# Context Rules
+context:
+  # Files to include in AI context for better suggestions
+  include:
+    - 'src/**/*.py'
+    - 'tests/**/*.py'
+    - 'config/*.py'
+
+  # Important project-specific terms and concepts
+  terminology:
+    - term: 'scraper'
+      context: 'Web page content extraction component'
+    - term: 'processor'
+      context: 'Text processing and chunking component'
+    - term: 'vectorizer'
+      context: 'Text to vector embedding component'
+    - term: 'vector_store'
+      context: 'FAISS-based vector storage and retrieval'
+
+# File Organization Rules
+organize:
+  # Component structure rules
+  components:
+    - name: 'scraper'
+      path: 'src/scraper'
+      responsibilities: ['URL validation', 'HTML fetching', 'Text extraction']
+
+    - name: 'processor'
+      path: 'src/processor'
+      responsibilities: ['Text chunking', 'Content cleaning']
+
+    - name: 'vectorizer'
+      path: 'src/vectorizer'
+      responsibilities: ['Embedding generation', 'Vector processing']
+
+    - name: 'storage'
+      path: 'src/storage'
+      responsibilities: ['Vector indexing', 'Similarity search']
+
+# Type Checking Rules
+types:
+  # Custom type aliases
+  aliases:
+    Vector: 'np.ndarray'
+    Metadata: 'Dict[str, Any]'
+    ChunkList: 'List[Dict[str, Any]]'
+
+  # Required type hints
+  required:
+    - 'function_parameters'
+    - 'function_returns'
+    - 'class_attributes'
+
+# Testing Rules
+testing:
+  # Required test categories
+  categories:
+    - name: 'unit'
+      pattern: 'test_*.py'
+      coverage_threshold: 80
+
+    - name: 'integration'
+      pattern: 'test_integration_*.py'
+      coverage_threshold: 70
+
+  # Required test cases
+  required_cases:
+    - 'happy_path'
+    - 'error_handling'
+    - 'edge_cases'
