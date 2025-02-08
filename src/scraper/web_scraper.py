@@ -30,10 +30,31 @@ class WebScraper:
         if not self.validate_url(url):
             raise ValueError(f"Invalid URL: {url}")
 
+        headers = self.session.headers.copy()
+
+        # Add special handling for Facebook URLs
+        if "facebook.com" in url or "developers.facebook.com" in url:
+            headers.update({
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
+                "Cache-Control": "max-age=0"
+            })
+
         for attempt in range(self.config["max_retries"]):
             try:
                 response = self.session.get(
-                    url, timeout=self.config["timeout"])
+                    url,
+                    timeout=self.config["timeout"],
+                    headers=headers,
+                    allow_redirects=True
+                )
                 response.raise_for_status()
                 return response.text
             except requests.RequestException as e:

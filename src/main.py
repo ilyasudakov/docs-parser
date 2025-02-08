@@ -87,7 +87,8 @@ def main():
 
         # Example URLs to process
         urls = [
-            "https://developers.google.com/google-ads/api/docs/sunset-dates"
+            "https://developers.google.com/google-ads/api/docs/sunset-dates",
+            "https://developers.facebook.com/docs/graph-api/changelog/"
         ]
 
         # Process URLs
