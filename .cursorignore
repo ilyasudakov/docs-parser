@@ -1,6 +1,6 @@
 # Ignore data directories
-data/raw/
-data/processed/
+src/data/raw/
+src/data/processed/
 
 # Python artifacts
 __pycache__/
