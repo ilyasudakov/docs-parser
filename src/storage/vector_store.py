@@ -24,6 +24,11 @@ class VectorStore:
         # Add vectors to FAISS index
         self.index.add(vectors)
 
+        # Debug print metadata being added
+        print("Debug - Adding metadata samples:")
+        for item in metadata[:2]:  # Print first 2 items
+            print(f"Metadata item: {item}")
+
         # Store metadata
         self.metadata.extend(metadata)
 
@@ -43,8 +48,16 @@ class VectorStore:
         results = []
         for i, (distance, idx) in enumerate(zip(distances[0], indices[0])):
             if idx != -1:  # FAISS returns -1 for not found
+                metadata = self.metadata[idx]
+                # Print metadata for debugging
+                print(f"Debug - Metadata at idx {idx}: {metadata}")
+
                 result = {
-                    "metadata": self.metadata[idx],
+                    "text": metadata.get('text', 'No text found'),
+                    "metadata": {
+                        key: value for key, value in metadata.items()
+                        if key != 'text'
+                    },
                     "distance": float(distance)
                 }
                 results.append(result)
@@ -68,7 +81,26 @@ class VectorStore:
 
         if index_path.exists() and metadata_path.exists():
             self.index = faiss.read_index(str(index_path))
+
+            # Load metadata and chunks
             with open(metadata_path, 'r', encoding='utf-8') as f:
                 self.metadata = json.load(f)
+
+            # Try to load text from chunks if available
+            chunks_dir = Path(self.config.get(
+                "chunks_dir", "src/data/processed/chunks"))
+            if chunks_dir.exists():
+                # Load all chunk files
+                for chunk_file in chunks_dir.glob("*.json"):
+                    with open(chunk_file, 'r', encoding='utf-8') as f:
+                        chunks = json.load(f)
+                        # Update metadata with text from chunks
+                        for chunk in chunks:
+                            # Find matching metadata by source_url and chunk_index
+                            for meta in self.metadata:
+                                if (meta.get('source_url') == chunk['metadata']['source_url'] and
+                                        meta.get('chunk_index') == chunk['metadata']['chunk_index']):
+                                    meta['text'] = chunk['text']
+                                    break
         else:
             raise FileNotFoundError("Index or metadata files not found")
